@@ -65,6 +65,7 @@ class OikbClient:
 
     # ── File upload ─────────────────────────────────────────────
 
+    # Patched to include "source_path" in the metadata for upload_file
     def upload_file(
         self,
         file_content: bytes,
@@ -72,6 +73,7 @@ class OikbClient:
         kb_id: str,
         file_hash: str,
         directory_id: str | None = None,
+        source_path: str | None = None,
     ) -> dict[str, Any]:
         """POST /files/ — upload a single file to the KB."""
 
@@ -81,6 +83,8 @@ class OikbClient:
         }
         if directory_id:
             metadata["directory_id"] = directory_id
+        if source_path:
+            metadata["source_path"] = source_path
 
         resp = self._http.post(
             "/files/",

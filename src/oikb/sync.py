@@ -332,12 +332,18 @@ def _run_sync_inner(
             try:
                 content = connector.read_file(path, filename)
                 directory_id = directory_map.get(path) if path else None
+                # Patch to include "source_path" in the upload metadata if WIKI_SOURCE_BASE_URL is set.
+                _wiki_base = os.environ.get("WIKI_SOURCE_BASE_URL", "").rstrip("/")
+                _rel = f"{path}/{filename}" if path else filename
+                _rel_no_ext = _rel[:-3] if _rel.endswith(".md") else _rel
+                _source_path = f"{_wiki_base}/{_rel_no_ext}" if _wiki_base else _rel
                 client.upload_file(
                     file_content=content,
                     filename=filename,
                     kb_id=kb_id,
                     file_hash=manifest_entry.checksum,
                     directory_id=directory_id,
+                    source_path=_source_path,
                 )
                 if progress is not None:
                     progress.update(task_id, advance=1, description=f"[cyan]{display}[/cyan]")
